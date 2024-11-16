@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
-
+from model.common_model import PhoneNumberRequest, OTPRequest
 from typing import Dict
 import random
 
