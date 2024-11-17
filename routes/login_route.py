@@ -1,45 +1,69 @@
 from fastapi import APIRouter, HTTPException, Depends
 from model.common_model import PhoneNumberRequest, OTPRequest
+from db_connection import user_collection
+from datetime import datetime
+from typing import Optional
+from bson import json_util
 from typing import Dict
+import json
 import random
 
 router = APIRouter()
 
-# Mock database for storing OTPs
 otp_db: Dict[str, int] = {}
 
 
 
-def send_otp_to_phone(phone_number: str, otp: int):
-    # Here you would integrate with a third-party service to send the OTP
-    print(f"Sending OTP {otp} to phone number {phone_number}")
-
-def generate_otp() -> int:
-    return random.randint(100000, 999999)
-
-def get_user_profile(phone_number: str) -> Dict:
-    # Mock function to return user profile data
-    return {
-        "phone_number": phone_number,
-        "name": "John Doe",
-        "email": "john.doe@example.com"
-    }
-
-@router.post("/send-otp")
-def send_otp(request: PhoneNumberRequest):
-    otp = generate_otp()
-    otp_db[request.phone_number] = otp
-    send_otp_to_phone(request.phone_number, otp)
-    return {"message": "OTP sent successfully"}
+@router.post("/user")
+async def send_otp(phone_request: PhoneNumberRequest):
+    phone = phone_request.phone_number
+    
+    # otp = random.randint(1000, 9999)
+    otp = 1234
+    otp_db[phone] = otp
+    
+    # Check if user exists
+    user = user_collection.find_one({"phone": phone})
+    
+    if user:
+        return {"message": "OTP sent successfully", "is_existing_user": True}
+    else:
+        return {"message": "OTP sent successfully", "is_existing_user": False}
 
 @router.post("/verify-otp")
-def verify_otp(request: OTPRequest):
-    if request.phone_number not in otp_db or otp_db[request.phone_number] != request.otp:
-        raise HTTPException(status_code=400, detail="OTP Invalid")
+async def verify_otp(otp_request: OTPRequest):
+    phone = otp_request.phone_number
+    submitted_otp = otp_request.otp
     
-    # OTP is valid, remove it from the database
-    del otp_db[request.phone_number]
+    if phone not in otp_db:
+        raise HTTPException(status_code=400, detail="No OTP was sent to this number")
     
-    # Get user profile data
-    user_profile = get_user_profile(request.phone_number)
-    return user_profile
+    stored_otp = otp_db[phone]
+    
+    if submitted_otp != stored_otp:
+        raise HTTPException(status_code=400, detail="OTP does not match")
+    
+    del otp_db[phone]
+    
+    user = user_collection.find_one({"phone": phone})
+    if user:
+        user_dict = json.loads(json_util.dumps(user))
+        return user_dict
+    else:
+        new_user = {
+            "name": "",
+            "email": "",
+            "dob": None,
+            "region": "",
+            "phone": phone,
+            "gender": "",
+            "allow_notifications": False,
+            "token": "",
+            "created_at": datetime.utcnow()
+        }
+        result = user_collection.insert_one(new_user)
+        
+        # Return the newly created user in JSON-serializable format
+        created_user = user_collection.find_one({"_id": result.inserted_id})
+        return json.loads(json_util.dumps(created_user))
+
