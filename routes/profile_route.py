@@ -3,8 +3,7 @@ from model.profile import UpdateProfileRequest
 from db_connection import user_collection
 from bson import json_util
 import json
-from typing import Optional
-from datetime import datetime
+
 
 router = APIRouter()
 
@@ -34,3 +33,13 @@ async def update_profile(phone: str, profile_data: UpdateProfileRequest):
         
     updated_user = user_collection.find_one({"phone": phone})
     return json.loads(json_util.dumps(updated_user))
+
+
+@router.get("/{phone}")
+async def get_profile(phone: str):
+    user = user_collection.find_one({"phone": phone})
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    return json.loads(json_util.dumps(user))
