@@ -17,7 +17,7 @@ try:
     user_collection: Collection = db["users"]
     # user_info_collection: Collection = db["user_info"]
 
-    # profile_collection: Collection = db["profile"]
+    report_collection: Collection = db["reports"]
     # users_collection: Collection = db["users"]
     # properties_collection: Collection = db["properties"]
 
