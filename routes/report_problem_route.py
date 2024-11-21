@@ -1,16 +1,18 @@
 from fastapi import FastAPI, File, Form, UploadFile, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from db_connection import report_collection
 import boto3
 import uuid
 
-app = FastAPI()
+
+router = APIRouter()
 
 
 s3_client = boto3.client('s3')
 S3_BUCKET = "your_s3_bucket_name"
 
-@app.post("/problem")
+@router.post("/problem")
 async def upload_data(images: list[UploadFile] = File(...), text: str = Form(...)):
     if not images or not text:
         raise HTTPException(status_code=400, detail="Images and text are required")
