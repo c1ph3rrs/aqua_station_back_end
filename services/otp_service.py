@@ -27,6 +27,6 @@ class OTPService:
         if res.status == 200:
             data = res.read()
             response = json.loads(data.decode("utf-8"))
-            print(f"OTP sent successfully {response}")
+            # print(f"OTP sent successfully {response}")
             return True
         return False
