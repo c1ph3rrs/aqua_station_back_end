@@ -3,9 +3,9 @@ import json
 
 class OTPService:
     def __init__(self):
-        self.conn = http.client.HTTPSConnection("v31v9r.api.infobip.com")
+        self.conn = http.client.HTTPSConnection("69ngp5.api.infobip.com")
         self.headers = {
-            'Authorization': 'App e2067ecb3ab2d3c784d3f7686d6aa6bd-53d80cf4-b913-4dd0-83ac-44d893cc7d22',
+            'Authorization': 'App 982e4fc3b4209f71c028e10c274bf34d-3f401dc0-ec17-4eb2-8022-210b141fcd25',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }

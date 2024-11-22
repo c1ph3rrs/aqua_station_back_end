@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
+from services.otp_service import OTPService
 from model.common_model import PhoneNumberRequest, OTPRequest
 from db_connection import user_collection
 from datetime import datetime
@@ -18,17 +19,21 @@ otp_db: Dict[str, int] = {}
 async def send_otp(phone_request: PhoneNumberRequest):
     phone = phone_request.phone_number
     
-    # otp = random.randint(1000, 9999)
     otp = 1234
     otp_db[phone] = otp
     
-    # Check if user exists
     user = user_collection.find_one({"phone": phone})
     
-    if user:
-        return {"message": "OTP sent successfully", "is_existing_user": True}
+    otp_service = OTPService()
+    otp_sent = otp_service.send_otp(phone, str(otp))
+    
+    if otp_sent:
+        if user:
+            return {"message": "OTP sent successfully", "is_existing_user": True}
+        else:
+            return {"message": "OTP sent successfully", "is_existing_user": False}
     else:
-        return {"message": "OTP sent successfully", "is_existing_user": False}
+        raise HTTPException(status_code=500, detail="Failed to send OTP")
 
 @router.post("/verify-otp")
 async def verify_otp(otp_request: OTPRequest):

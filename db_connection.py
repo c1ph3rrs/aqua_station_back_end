@@ -1,6 +1,3 @@
-# mongodb+srv://ciphersdevelopers:Tlc2moltVnuuoAGL@maincluster.sg74d.mongodb.net/
-# mongodb+srv://ciphersdevelopers:<db_password>@maincluster.sg74d.mongodb.net/?retryWrites=true&w=majority&appName=mainCluster
-
 from pymongo import MongoClient
 from pymongo.collection import Collection
 import certifi
