@@ -41,6 +41,9 @@ async def send_otp(phone_request: PhoneNumberRequest):
 async def verify_otp(otp_request: OTPRequest):
     phone = otp_request.phone_number
     submitted_otp = otp_request.otp
+
+    print(f"DB otp is ${otp_db}")
+    print(f"Submited otp is {submitted_otp}")
     
     if phone not in otp_db:
         raise HTTPException(status_code=400, detail="No OTP was sent to this number")
@@ -48,15 +51,23 @@ async def verify_otp(otp_request: OTPRequest):
     stored_otp = otp_db[phone]
     
     if submitted_otp != stored_otp:
-        raise HTTPException(status_code=400, detail="OTP does not match")
-    
-    del otp_db[phone]
+        raise HTTPException(status_code=400, detail="OTP does not match")    
     
     user = user_collection.find_one({"phone": phone})
+
+    if submitted_otp == stored_otp:
+        del otp_db[phone]
+
     if user:
         user_dict = json.loads(json_util.dumps(user))
+        user_dict["_id"] = str(user_dict["_id"]["$oid"])
+        if user_dict.get("dob"):
+            user_dict["dob"] = user_dict["dob"]["$date"]
+        if user_dict.get("created_at"):
+            user_dict["created_at"] = user_dict["created_at"]["$date"]
         return user_dict
     else:
+        print("New User found")
         new_user = {
             "name": "",
             "email": "",
