@@ -24,8 +24,10 @@ async def send_otp(phone_request: PhoneNumberRequest):
     
     user = user_collection.find_one({"phone": phone})
     
-    otp_service = OTPService()
-    otp_sent = otp_service.send_otp(phone, str(otp))
+    # otp_service = OTPService()
+    # otp_sent = otp_service.send_otp(phone, str(otp))
+
+    otp_sent =  True
     
     if otp_sent:
         if user:
