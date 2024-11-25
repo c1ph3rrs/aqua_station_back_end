@@ -43,3 +43,18 @@ async def get_profile(phone: str):
         raise HTTPException(status_code=404, detail="User not found")
         
     return json.loads(json_util.dumps(user))
+
+
+@router.get("/id/{user_id}")
+async def get_profile_by_id(user_id: str):
+    from bson import ObjectId
+
+    try:
+        user = user_collection.find_one({"_id": ObjectId(user_id)})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid user ID format")
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    return json.loads(json_util.dumps(user))
