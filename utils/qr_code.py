@@ -1,6 +1,6 @@
 import qrcode
 
-dynamic_link = "https://yourapp.page.link/xyz123"
+dynamic_link = "http://aqua-station-dynamic-link.s3-website-us-east-1.amazonaws.com"
 
 # Generate QR Code
 qr = qrcode.QRCode(
