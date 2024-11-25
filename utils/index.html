@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirecting...</title>
+  <script>
+    // URLs for redirection
+    const androidAppUrl = "https://play.google.com/store/apps/details?id=com.yourapp";
+    const iosAppUrl = "https://apps.apple.com/us/app/yourapp/id123456789";
+    const fallbackUrl = "https://yourwebsite.com"; // Fallback for unsupported devices
+
+    // Detect device based on User-Agent
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    if (/android/i.test(userAgent)) {
+      // Redirect to Android Play Store
+      window.location.href = androidAppUrl;
+    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+      // Redirect to iOS App Store
+      window.location.href = iosAppUrl;
+    } else {
+      // Fallback for other devices
+      window.location.href = fallbackUrl;
+    }
+  </script>
+</head>
+<body>
+  <h1>Redirecting...</h1>
+  <p>If you are not redirected automatically, <a id="manual-link" href="#">click here</a>.</p>
+  <script>
+    // Set the manual link for users in case auto-redirect fails
+    document.getElementById('manual-link').href = fallbackUrl;
+  </script>
+</body>
+</html>
