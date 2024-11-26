@@ -4,43 +4,49 @@ import requests
 import json
 
 
-def getAccessKey():
+def initialize_firebase():
+    try:
+        cred = credentials.Certificate("al-marmoom-firebase-adminsdk-bmm2p-134b561456.json")
+        firebase_admin.initialize_app(cred)
+        return cred.get_access_token().access_token
+    except Exception as e:
+        raise Exception(f"Failed to initialize Firebase: {str(e)}")
 
-    cred = credentials.Certificate("whisper-crm-firebase-adminsdk-o5o2e-5dbb94200c.json")
-    print(cred.get_access_token().access_token)
-    return cred.get_access_token().access_token
-    # firebase_admin.initialize_app(cred)
 
+def send_notification(token, title, body):
+    try:
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {initialize_firebase()}'
+        }
 
+        url = "https://fcm.googleapis.com/v1/projects/al-marmoom/messages:send"
 
-def send_notification():
-
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {getAccessKey()}'
-    }
-
-    url = "https://fcm.googleapis.com/v1/projects/whisper-crm/messages:send"
-
-    payload = json.dumps({
+        payload = json.dumps({
             "message": {
-                "token": "cpDdAarGTxaqqttGTq677o:APA91bFR2BM914X3JoHod92Ak58_CcKbnS0y4hWORfsXslOYJO-4vAhCppnYpZD7UWjjEc0G7ftYe06SSSbolyV_u2fh0alr_f1jQh9vOyf-XToMex7KGZI",
+                "token": token,
                 "notification": {
-                "body": "This is a Firebase Cloud Messaging Topic Message!",
-                "title": "FCM Message"
+                    "body": body,
+                    "title": title
                 }
-            }})
-        
-    print(f"Headers is {headers}")
-    
+            }
+        })
 
-    response = requests.request("POST", url, headers=headers, data=payload, verify=False)
+        response = requests.request("POST", url, headers=headers, data=payload)
+        response.raise_for_status()
+        return response.json()
 
-    if response.status_code == 200:
-        print(f"Response is {response.json}")
-    else:
-        print(f"Response is {response}")
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Failed to send notification: {str(e)}")
 
 
 if __name__ == "__main__":
-    send_notification()
+    test_token = "c4ioSUF-QLCDlimEO64tFb:APA91bERyKHNXIQr3G54sBPmPjknyNMEPIjQZpKWjyd3UdnUlQyLC5SkOUOLsFLs-l7HC_hT4jt-Y21p39BMc0qcFrq0sfafFUCbO0Ia7ORjYV1DqqkeGXM"
+    try:
+        send_notification(
+            token=test_token,
+            title="Test Notification",
+            body="This is a test notification"
+        )
+    except Exception as e:
+        print(f"Error: {str(e)}")
