@@ -81,7 +81,6 @@ async def verify_otp(otp_request: OTPRequest):
         }
         result = user_collection.insert_one(new_user)
         
-        # Return the newly created user in JSON-serializable format
         created_user = user_collection.find_one({"_id": result.inserted_id})
         return json.loads(json_util.dumps(created_user))
 
