@@ -20,7 +20,6 @@ async def update_profile(phone: str, profile_data: UpdateProfileRequest):
         "dob": profile_data.dob,
         "region": profile_data.region,
         "gender": profile_data.gender,
-        "allow_notifications": profile_data.allow_notifications
     }
     
     result = user_collection.update_one(
