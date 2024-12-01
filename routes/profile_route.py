@@ -102,7 +102,7 @@ async def remove_token(user_id: str, token: str):
 
     tokens = user.get("tokens", [])
     if token not in tokens:
-        return {"detail": "Token does not exist"}
+        return {"detail": "Token does not exist!"}
 
     tokens.remove(token)
     result = user_collection.update_one(
