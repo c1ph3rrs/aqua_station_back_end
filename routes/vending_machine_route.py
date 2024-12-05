@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from model.vending_machine_model import VendingMachine
 from datetime import datetime
-from db_connection import vending_machine_collection
+from db_connection import vending_machine_collection, machine_loc_collection
 from bson import json_util
 import json
 
@@ -62,3 +62,14 @@ async def get_vending_machine(machine_id: str):
 async def get_all_vending_machines():
     machines = vending_machine_collection.find()
     return json.loads(json_util.dumps(list(machines)))
+
+
+@router.get("/loc/all")
+async def get_all_machine_locations():
+    locations = machine_loc_collection.find()
+    formatted_locations = []
+    for location in locations:
+        location["id"] = str(location["_id"]) 
+        del location["_id"] 
+        formatted_locations.append(location)
+    return formatted_locations
