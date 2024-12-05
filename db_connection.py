@@ -17,6 +17,7 @@ try:
     report_collection: Collection = db["reports"]
     # users_collection: Collection = db["users"]
     # properties_collection: Collection = db["properties"]
+    machine_loc_collection = db["machines_locations"]
 
     print("Connected to MongoDB successfully!")
 except Exception as e:

@@ -2,6 +2,8 @@ import hmac
 import hashlib
 import time
 import requests
+import json
+from db_connection import machine_loc_collection
 
 # Configuration
 BASE_URL = "https://dev-mobile.api.alivewater.online"
@@ -41,9 +43,25 @@ def list_devices():
         return response.json()
     else:
         return {"error": response.status_code, "message": response.text}
+    
+
+
+
+def load_machines_to_mongodb():
+    
+
+    with open("machines_locations.json", "r") as file:
+        machines_data = json.load(file)
+
+    # Insert data into MongoDB
+    if isinstance(machines_data, list):
+        machine_loc_collection.insert_many(machines_data)
+    else:
+        print("Data is not in the expected format (list).")
 
 
 if __name__ == "__main__":
-    devices = list_devices()
-    print("Devices Listing:")
-    print(devices)
+    # devices = list_devices()
+    # print("Devices Listing:")
+    # print(devices)
+    load_machines_to_mongodb()
