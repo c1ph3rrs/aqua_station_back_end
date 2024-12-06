@@ -68,7 +68,7 @@ async def get_all_vending_machines():
 async def get_all_machine_locations():
     locations = machine_loc_collection.find()
     formatted_locations = []
-    for location in locations:
+    for location in locations:  
         location["id"] = str(location["_id"]) 
         del location["_id"] 
         formatted_locations.append(location)
