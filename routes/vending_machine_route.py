@@ -73,7 +73,3 @@ async def get_all_machine_locations():
         del location["_id"] 
         formatted_locations.append(location)
     return formatted_locations
-
-
-
-#AIzaSyCSkINAJ1TMJaoMLK7aicQLzMj_dhW6l38

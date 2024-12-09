@@ -20,6 +20,9 @@ try:
     vending_machine_collection: Collection = db['machines']
     machine_loc_collection: Collection = db["machines_locations"]
 
+    user_points_collection: Collection = db["user_points"]
+    prices_collection: Collection = db["prices"]
+
     print("Connected to MongoDB successfully!")
 except Exception as e:
     print(f"An error occurred while connecting to MongoDB: {e}")
