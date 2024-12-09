@@ -23,6 +23,11 @@ try:
     user_points_collection: Collection = db["users_points"]
     prices_collection: Collection = db["prices"]
 
+    recharge_history_collection: Collection = db["recharge_history"]
+    transactions_collection: Collection = db["transactions"]
+
+    rewards_history_collection: Collection = db["rewards_history"]
+    
     print("Connected to MongoDB successfully!")
 except Exception as e:
     print(f"An error occurred while connecting to MongoDB: {e}")
