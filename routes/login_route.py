@@ -67,7 +67,6 @@ async def verify_otp(otp_request: OTPRequest):
             user_dict["created_at"] = user_dict["created_at"]["$date"]
         return user_dict
     else:
-        print("New User found")
         new_user = {
             "name": "",
             "email": "",

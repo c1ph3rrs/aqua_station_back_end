@@ -27,6 +27,8 @@ try:
     transactions_collection: Collection = db["transactions"]
 
     rewards_history_collection: Collection = db["rewards_history"]
+
+    notification_collection: Collection = db["notifications"]
     
     print("Connected to MongoDB successfully!")
 except Exception as e:

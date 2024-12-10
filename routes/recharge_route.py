@@ -1,45 +1,80 @@
 from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
+from bson import ObjectId
 import random
 import string
 from datetime import datetime
-from db_connection import user_collection, recharge_history_collection
+from db_connection import user_collection, recharge_history_collection, notification_collection
+import json
 
 router = APIRouter()
 
-@router.post("/recharge/{user_id}")
-async def recharge_user(user_id: str, recharge_amount: float):
-    user = user_collection.find_one({"_id": user_id})
+class RechargeRequest(BaseModel):
+    user_id: str
+    recharge_amount: float
+
+@router.post("/recharge")
+async def recharge_user(request: RechargeRequest):
+    user = user_collection.find_one({"_id": ObjectId(request.user_id)})
     
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    current_balance = user.get("balance", 0)
+    current_balance = user.get("balance", 0.0)  
     
-    # if current_balance < 0:
-    #     raise HTTPException(status_code=400, detail="Insufficient balance to recharge")
+    bonus = 0.0  
     
-    
-    while True:
-        recharge_number = "Rx" + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
-        if not recharge_history_collection.find_one({"recharge_number": recharge_number}):
-            break
+    if request.recharge_amount >= 50:
+        bonus = 5.0  
 
-    new_balance = current_balance + recharge_amount
-    user_collection.update_one({"_id": user_id}, {"$set": {"balance": new_balance}})
-    
+    recharge_number = "Rx" + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+    while recharge_history_collection.find_one({"recharge_number": recharge_number}):
+        recharge_number = "Rx" + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+
+    new_balance = float(current_balance) + float(request.recharge_amount) + float(bonus)
+    user_collection.update_one({"_id": ObjectId(request.user_id)}, {"$set": {"balance": new_balance}})
+
     recharge_record = {
-        "user_id": user_id,
-        "recharge_amount": recharge_amount,
+        "user_id": request.user_id,
+        "recharge_amount": request.recharge_amount,
+        "bonus": bonus > 0,
+        "bonus_amount": bonus,
         "datetime": datetime.now(),
         "recharge_number": recharge_number
     }
     recharge_history_collection.insert_one(recharge_record)
+
+    notification_data = {
+        "title": "Recharge Amount",
+        "body": f"Congratulations you have recharged an amount of {request.recharge_amount} AED.",
+        "icon": "",
+        "user_id": request.user_id,
+        "notification_datetime": datetime.now(),
+        "data": json.dumps({"redirect_screen": "notifications", "notification_id": "Nf" + ''.join(random.choices(string.ascii_letters + string.digits, k=8)), "user_id": request.user_id})
+    }
+    notification_collection.insert_one(notification_data)
+
+    if request.recharge_amount > 50:
+        extra_notification_data = {
+            "title": "Bonus Amount",
+            "body": f"Congratulations you got 5 AED extra on recharge of {request.recharge_amount} AED or more.",
+            "icon": "",
+            "user_id": request.user_id,
+            "notification_datetime": datetime.now(),
+            "data": json.dumps({"redirect_screen": "notifications", "notification_id": "ENf" + ''.join(random.choices(string.ascii_letters + string.digits, k=8)), "user_id": request.user_id})
+        }
+        notification_collection.insert_one(extra_notification_data)
     
     return {
+        "status": True,
         "message": "Recharge successful",
         "new_balance": new_balance,
-        "recharge_number": recharge_number
+        "recharge_number": recharge_number,
+        "bonus": bonus > 0,
+        "bonus_amount": bonus
     }
+
+
 
 
 @router.get("/recharge/history/{user_id}")
