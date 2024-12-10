@@ -15,16 +15,17 @@ async def recharge_user(user_id: str, recharge_amount: float):
     
     current_balance = user.get("balance", 0)
     
-    if current_balance < 0:
-        raise HTTPException(status_code=400, detail="Insufficient balance to recharge")
+    # if current_balance < 0:
+    #     raise HTTPException(status_code=400, detail="Insufficient balance to recharge")
     
-    new_balance = current_balance + recharge_amount
-    user_collection.update_one({"_id": user_id}, {"$set": {"balance": new_balance}})
     
     while True:
         recharge_number = "Rx" + ''.join(random.choices(string.ascii_letters + string.digits, k=8))
         if not recharge_history_collection.find_one({"recharge_number": recharge_number}):
             break
+
+    new_balance = current_balance + recharge_amount
+    user_collection.update_one({"_id": user_id}, {"$set": {"balance": new_balance}})
     
     recharge_record = {
         "user_id": user_id,
