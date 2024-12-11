@@ -52,11 +52,9 @@ async def get_profile_by_id(user_id: str):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     
-    user["id"] = str(user["_id"]) 
-    del user["_id"] 
-    
-    # Format the user data as required
+    # Format the user data as required, using 'id' instead of '_id'
     formatted_user = {
+        "id": str(user["_id"]),  # Directly assign the string representation of '_id' to 'id'
         "name": user.get("name"),
         "email": user.get("email"),
         "dob": user.get("dob"),
@@ -66,11 +64,10 @@ async def get_profile_by_id(user_id: str):
         "allow_notifications": user.get("allow_notifications"),
         "token": user.get("token", ""),
         "created_at": user.get("created_at"),
-        "balance": user.get("balance")
+        "balance": float(user.get("balance", 0))
     }
     
     return formatted_user
-
 
 @router.post("/add/token")
 async def post_token(user_id: str, token: str):

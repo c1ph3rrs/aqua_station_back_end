@@ -41,9 +41,6 @@ async def send_otp(phone_request: PhoneNumberRequest):
 async def verify_otp(otp_request: OTPRequest):
     phone = otp_request.phone_number
     submitted_otp = otp_request.otp
-
-    print(f"DB otp is ${otp_db}")
-    print(f"Submited otp is {submitted_otp}")
     
     if phone not in otp_db:
         raise HTTPException(status_code=400, detail="No OTP was sent to this number")
@@ -59,13 +56,20 @@ async def verify_otp(otp_request: OTPRequest):
         del otp_db[phone]
 
     if user:
-        user_dict = json.loads(json_util.dumps(user))
-        user_dict["_id"] = str(user_dict["_id"]["$oid"])
-        if user_dict.get("dob"):
-            user_dict["dob"] = user_dict["dob"]["$date"]
-        if user_dict.get("created_at"):
-            user_dict["created_at"] = user_dict["created_at"]["$date"]
-        return user_dict
+        user_dict = {
+            "id": str(user["_id"]), 
+            "name": user.get("name"),
+            "email": user.get("email"),
+            "dob": user.get("dob", None),  
+            "region": user.get("region"),
+            "phone": user.get("phone"),
+            "gender": user.get("gender"),
+            "allow_notifications": user.get("allow_notifications"),
+            "token": user.get("token", ""),
+            "created_at": user.get("created_at", None),  
+            "balance": float(user.get("balance", 0))
+        }
+        return user_dict 
     else:
         new_user = {
             "name": "",
@@ -76,10 +80,13 @@ async def verify_otp(otp_request: OTPRequest):
             "gender": "",
             "allow_notifications": False,
             "token": "",
+            "balance": 0,
             "created_at": datetime.utcnow()
         }
         result = user_collection.insert_one(new_user)
         
         created_user = user_collection.find_one({"_id": result.inserted_id})
-        return json.loads(json_util.dumps(created_user))
-
+        created_user_dict = json.loads(json_util.dumps(created_user))
+        created_user_dict["id"] = str(created_user_dict["_id"])  # Change _id to id
+        created_user_dict.pop("_id", None)  # Remove _id from the dictionary
+        return created_user_dict

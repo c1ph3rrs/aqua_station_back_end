@@ -83,5 +83,12 @@ async def get_recharge_history(user_id: str):
     if not recharge_history:
         raise HTTPException(status_code=404, detail="No recharge history found for this user")
         
-    return  recharge_history
+    # Format the recharge history to replace '_id' with 'id'
+    formatted_history = []
+    for record in recharge_history:
+        record["id"] = str(record["_id"]) 
+        record.pop("_id", None)  
+        formatted_history.append(record)
+        
+    return formatted_history
 
