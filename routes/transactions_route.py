@@ -1,11 +1,25 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Body
 import random
 import string
 from datetime import datetime
 from bson import ObjectId
 from db_connection import user_collection, transactions_collection, prices_collection, user_points_collection, rewards_history_collection
+from pydantic import BaseModel
+
 
 router = APIRouter()
+
+
+class TransactionRequest(BaseModel):
+    user_id: str
+    payment_method: str
+    water_qty: int
+    use_points: bool
+    used_points: int = 0
+    machine_id: str = None
+    user_lat: float = None
+    user_lng: float = None
+
 
 def generate_unique_transaction_number():
     while True:
@@ -13,9 +27,19 @@ def generate_unique_transaction_number():
         if not transactions_collection.find_one({"transaction_number": transaction_number}):
             return transaction_number
 
-@router.post("/transaction/{user_id}")
-async def create_transaction(user_id: str, payment_method: str, water_qty: int, use_points: bool, used_points: int = 0, machine_id: str = None, user_lat: float = None, user_lng: float = None):
+@router.post("/transaction")
+async def create_transaction(transaction_request: TransactionRequest):
     try:
+        # Extract values from the transaction request
+        user_id = transaction_request.user_id
+        payment_method = transaction_request.payment_method
+        water_qty = transaction_request.water_qty
+        use_points = transaction_request.use_points
+        used_points = transaction_request.used_points
+        machine_id = transaction_request.machine_id
+        user_lat = transaction_request.user_lat
+        user_lng = transaction_request.user_lng
+
         if water_qty <= 0 or water_qty % 5 != 0:
             raise HTTPException(status_code=400, detail="Water quantity must be greater than zero and a multiple of 5 liters (e.g., 5, 10, 15).")
         
@@ -104,6 +128,7 @@ async def create_transaction(user_id: str, payment_method: str, water_qty: int, 
             rewards_history_collection.insert_one(rewards_record)
 
         return {
+            "status": True,
             "message": "Transaction completed successfully",
             "transaction_number": transaction_number,
             "total_price": total_price,

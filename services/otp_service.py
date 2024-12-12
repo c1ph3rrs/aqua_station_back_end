@@ -1,43 +1,22 @@
-import http.client
-import json
+import requests
 
 class OTPService:
-    def __init__(self):
-        self.conn = http.client.HTTPSConnection("69ngp5.api.infobip.com")
-        self.headers = {
-            'Authorization': 'App 982e4fc3b4209f71c028e10c274bf34d-3f401dc0-ec17-4eb2-8022-210b141fcd25',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
+    def __init__(self) -> None:
+        self.api_user = "xfe9q3yv"
+        self.api_password = "dk3PbcOU"
+        self.sender_id = "AquaStation"
+
+    def send_otp(self, recipient_number: str, otp_code: str) -> bool:
+        message = f"Your OTP code is {otp_code}"
+        response = self.send_sms(self.api_user, self.api_password, self.sender_id, recipient_number, message)
+        return response.status_code in [200, 202]
+
+    def send_sms(self, api_user: str, api_password: str, sender_id: str, recipient_number: str, message: str) -> requests.Response:
+        url = "https://api.smsglobal.com/http-api.php"
+        payload = f'action=sendsms&user={api_user}&password={api_password}&from={sender_id}&to={recipient_number}&text={message}'
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-    def send_otp(self, phone_number: str, otp: str) -> bool:
-        payload = json.dumps({
-            "messages": [
-                {
-                    "destinations": [{"to": phone_number}],
-                    "from": "ServiceSMS",
-                    "text": f"Your OTP is: {otp}. Please use this to verify your account."
-                }
-            ]
-        })
-
-        self.conn.request("POST", "/sms/2/text/advanced", payload, self.headers)
-        res = self.conn.getresponse()
-
-        if res.status == 200:
-            data = res.read()
-            response = json.loads(data.decode("utf-8"))
-            # print(f"OTP sent successfully {response}")
-            return True
-        return False
-    
-
-
-
-# sms global
-# username and password
-# xfe9q3yv
-# HQZWVH84
-# Name	         Key	                               Secret	                             Date Created
-# otp_api_key	 30a811981573d13d9a9721e4c931813b      40b48e4958fbf1ccd4fb6f8acf27191b   Dec 12, 2024 12:08:29 PM
-# https://www.smsglobal.com/rest-api/
+        response = requests.post(url, headers=headers, data=payload)
+        return response
