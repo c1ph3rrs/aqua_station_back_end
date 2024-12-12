@@ -30,3 +30,14 @@ class OTPService:
             # print(f"OTP sent successfully {response}")
             return True
         return False
+    
+
+
+
+# sms global
+# username and password
+# xfe9q3yv
+# HQZWVH84
+# Name	         Key	                               Secret	                             Date Created
+# otp_api_key	 30a811981573d13d9a9721e4c931813b      40b48e4958fbf1ccd4fb6f8acf27191b   Dec 12, 2024 12:08:29 PM
+# https://www.smsglobal.com/rest-api/
