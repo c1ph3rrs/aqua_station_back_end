@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 import json
 from bson import json_util
-from db_connection import prices_collection, user_points_collection
+from db_connection import prices_collection, user_points_collection, rewards_history_collection
 
 router = APIRouter()
 
@@ -21,9 +21,25 @@ async def get_user_points(user_id: str):
     user_points = user_points_collection.find_one({"user_id": user_id})
     
     if not user_points:
-        raise HTTPException(status_code=404, detail="User points not found")
+        return {"user_id": user_id, "points": 0}
         
     user_points["id"] = str(user_points["_id"])
     del user_points["_id"]
     
     return json.loads(json_util.dumps(user_points))
+
+
+@router.get("/rewards-history/{user_id}")
+async def get_rewards_history(user_id: str):
+    rewards_history = rewards_history_collection.find({"user_id": user_id})
+    
+    if not rewards_history:
+        raise HTTPException(status_code=404, detail="Rewards history not found")
+    
+    rewards_list = []
+    for reward in rewards_history:
+        reward["id"] = str(reward["_id"])
+        del reward["_id"]
+        rewards_list.append(json.loads(json_util.dumps(reward)))
+    
+    return rewards_list
