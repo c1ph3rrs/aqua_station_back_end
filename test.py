@@ -3,13 +3,15 @@ import hashlib
 import time
 import requests
 import json
-from db_connection import machine_loc_collection
+# from db_connection import machine_loc_collection
 
 # Configuration
-BASE_URL = "https://dev-mobile.api.alivewater.online"
+# BASE_URL = "https://dev-mobile.api.alivewater.online"
+BASE_URL = "http://aw-psp-prod.eu-central-1.elasticbeanstalk.com"
 SERVICE_ID = "halyk"
-SECRET_KEY = "your_secret_key"  # Replace with your actual secret key
-ENDPOINT = "/devices"
+# SECRET_KEY = "http://aw-psp-prod.eu-central-1.elasticbeanstalk.com"
+ENDPOINT = "/device"
+Device_ID = "861774051044269"
 
 def generate_hash(service_id, dt, uri, body, secret_key):
     data_to_sign = f"{service_id}{dt}{uri}{body}"
@@ -55,13 +57,28 @@ def load_machines_to_mongodb():
 
     # Insert data into MongoDB
     if isinstance(machines_data, list):
-        machine_loc_collection.insert_many(machines_data)
+        print("s")
+        # machine_loc_collection.insert_many(machines_data)
     else:
         print("Data is not in the expected format (list).")
 
 
+# Example: Check if device is online without signature
+def check_device_unauthenticated(device_id):
+    path = f"/device/{device_id}/check"
+    url = f"{BASE_URL}{path}"
+    response = requests.get(url)
+    return response.json()
+    
+
+
 if __name__ == "__main__":
+
+    device_id = "861774051044269"
+
     # devices = list_devices()
     # print("Devices Listing:")
     # print(devices)
-    load_machines_to_mongodb()
+    # load_machines_to_mongodb()
+
+    print(check_device_unauthenticated(device_id))

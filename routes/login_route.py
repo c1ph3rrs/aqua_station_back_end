@@ -19,13 +19,13 @@ otp_db: Dict[str, int] = {}
 async def send_otp(phone_request: PhoneNumberRequest):
     phone = phone_request.phone_number
     
-    otp = 1234
+    otp = 7832
     otp_db[phone] = otp
     
     user = user_collection.find_one({"phone": phone})
     
-    # otp_service = OTPService()
-    # otp_sent = otp_service.send_otp(phone, str(otp))
+    otp_service = OTPService()
+    otp_sent = otp_service.send_otp(phone, str(otp))
 
     otp_sent =  True
     
