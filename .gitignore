@@ -24,3 +24,75 @@ env/
 # Logs
 *.log
 *.json
+
+
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Environment variables
+.env
+*.env
+
+# Logs
+*.log
+*.out
+*.err
+
+# Testing
+.coverage
+*.cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.eggs/
+*.manifest
+
+# Node.js dependencies (if using npm/yarn for frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*~
+
+# Migrations (if applicable)
+**/migrations/
+
+# Static and media files (if applicable)
+staticfiles/
+media/
+
+# Compiled files and caches
+*.so
+*.c
+*.o
+
+# Other
+*.pid
+celerybeat-schedule
+celerybeat.pid
+
+# Local development files
+*.local
